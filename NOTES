@@ -1,0 +1,26 @@
+- What am I actually trying to do?
+
+$ parquet-tools dump -c eventdate -m 000293 | grep -v null | head
+INT96 eventdate
+----------------------------------------------------------------------------------------------------
+*** row group 1 of 4, values 1 to 1270100 ***
+value 1:      R:0 D:1 V:2792039680
+value 2:      R:0 D:1 V:4084016384
+value 3:      R:0 D:1 V:879633664
+value 4:      R:0 D:1 V:541795584
+value 5:      R:0 D:1 V:410068224
+
+$ parquet-tools dump -c eventdate -m 000293 | grep -v null | head
+INT64 eventdate
+----------------------------------------------------------------------------------------------------
+*** row group 1 of 2, values 1 to 1394100 ***
+value 1:      R:0 D:1 V:1019692800000
+value 2:      R:0 D:1 V:1070582400000
+value 3:      R:0 D:1 V:1076198400000
+value 4:      R:0 D:1 V:300326400000
+value 5:      R:0 D:1 V:1140134400000
+
+$ date -d @1019692800
+Thu 25 Apr 00:00:00 UTC 2002
+
+- How will I know when it's completed?

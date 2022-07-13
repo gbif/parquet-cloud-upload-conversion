@@ -1,0 +1,36 @@
+#!/bin/zsh
+
+set -e
+
+srcpath=$(cat srcpath)
+
+typeset -a hosts
+hosts=(c5n1.gbif.org
+c5n2.gbif.org
+c5n3.gbif.org
+c5n4.gbif.org
+c5n5.gbif.org
+c5n6.gbif.org
+c5n7.gbif.org
+c5n8.gbif.org
+c5n9.gbif.org
+c5n10.gbif.org)
+
+for h in $hosts; do
+    ssh mblissett@$h w
+done
+
+x=0
+for i in ??????_0; do
+    h=$hosts[$(($x % $#hosts + 1))]
+    echo $h $i
+    /usr/bin/ssh mblissett@$h nice -n 20 java -jar ~/parquet-testing-1.0-SNAPSHOT-jar-with-dependencies.jar $srcpath/$i &
+    rm -f $i
+    x=$((x + 1))
+    if [[ $x = $#hosts ]]; then
+        exit 0
+    fi
+    sleep 0.2
+done
+
+exit

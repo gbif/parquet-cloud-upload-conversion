@@ -1,0 +1,33 @@
+#!/bin/zsh
+
+set -e
+
+srcpath=$(cat srcpath)
+
+typeset -a hosts
+hosts=(c7n1.gbif.org
+c7n2.gbif.org
+c7n3.gbif.org
+c7n4.gbif.org
+c7n5.gbif.org
+c7n6.gbif.org
+c7n7.gbif.org)
+
+for h in $hosts; do
+    ssh mblissett@$h w
+done
+
+x=0
+for i j k l m n o p q r s t u v w x y z in ??????_0; do
+    h=$hosts[$(($x % $#hosts + 1))]
+    echo $h $i $j $k $l $m $n $o $p $q $r $s $t $u $v $w $x $y $z
+    /usr/bin/ssh mblissett@$h nice -n 20 java -jar ~/parquet-testing-1.0-SNAPSHOT-jar-with-dependencies.jar $srcpath/$i $srcpath/$j $srcpath/$k $srcpath/$l $srcpath/$m $srcpath/$n $srcpath/$o $srcpath/$p $srcpath/$q $srcpath/$r $srcpath/$s $srcpath/$t $srcpath/$u $srcpath/$v $srcpath/$w $srcpath/$x $srcpath/$y $srcpath/$z &
+    rm -f $i $j $k $l $m $n $o $p $q $r $s $t $u $v $w $x $y $z
+    x=$((x + 1))
+    if [[ $x = $#hosts ]]; then
+        exit 0
+    fi
+    sleep 0.2
+done
+
+exit
