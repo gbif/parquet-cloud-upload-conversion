@@ -5,7 +5,7 @@
 
   <groupId>org.gbif.hadoop.parquet</groupId>
   <artifactId>parquet-cloud-upload-conversion</artifactId>
-  <version>1.0</version>
+  <version>1.1-SNAPSHOT</version>
 
   <name>Parquet Cloud Upload Conversion</name>
   <description>Conversion for Parquet cloud uploads</description>
@@ -14,7 +14,7 @@
     <connection>scm:git:git@github.com:gbif/parquet-cloud-upload-conversion.git</connection>
     <url>https://github.com/gbif/parquet-cloud-upload-conversion</url>
     <developerConnection>scm:git:git@github.com:gbif/parquet-cloud-upload-conversion.git</developerConnection>
-    <tag>parquet-cloud-upload-conversion-1.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <distributionManagement>
