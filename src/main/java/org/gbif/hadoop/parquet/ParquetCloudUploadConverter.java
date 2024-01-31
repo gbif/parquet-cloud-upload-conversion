@@ -10,9 +10,13 @@ import org.apache.parquet.example.data.simple.SimpleGroup;
 import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.Type;
+import org.gbif.api.util.IsoDateInterval;
+import org.gbif.common.parsers.date.TemporalAccessorUtils;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -21,8 +25,9 @@ import java.util.regex.Pattern;
 /**
  * Converts a SIMPLE_PARQUET GBIF download into the format accepted by Google BigQuery and others.
  *
- * 1. Convert the event date from an int96 to an int64
+ * 1. Convert timestamps from an int96 to an int64
  * 2. Convert bags into arrays
+ * 3. Convert the event date (interval string) into an int64 of the earliest date
  */
 public class ParquetCloudUploadConverter extends Mapper<LongWritable, Group, LongWritable, Group> {
   enum CountersEnum {RECORDS}
@@ -47,12 +52,16 @@ public class ParquetCloudUploadConverter extends Mapper<LongWritable, Group, Lon
   protected static String updateSchema(MessageType schema) {
     String stringSchema = schema.toString();
 
-    // Replace int96 eventdate → int64 eventdate (TIMESTAMP_MILLIS) for all int96 types.
+    // Replace int96 timestamp → int64 timestamp (TIMESTAMP_MILLIS) for all int96 types.
     Pattern dates = Pattern.compile("int96 ([a-z]+);");
     stringSchema = dates.matcher(stringSchema).replaceAll("int64 $1 (TIMESTAMP_MILLIS);");
 
     // Replace bags with arrays. I'm not sure why we do this; I don't see any reference to it in my email.
     stringSchema = stringSchema.replaceAll("group bag", "group array");
+
+    // Replace string eventdate with int64 timestamp.
+    stringSchema = stringSchema.replaceAll("binary eventdate .UTF8.;", "int64 eventdate (TIMESTAMP_MILLIS);");
+    //System.out.println("New schema: "+stringSchema);
 
     return stringSchema;
   }
@@ -80,7 +89,21 @@ public class ParquetCloudUploadConverter extends Mapper<LongWritable, Group, Lon
               out.add(field, inst.toEpochMilli());
               break;
             case BINARY:
-              out.add(field, in.getBinary(field, rep));
+              if ("eventdate".equals(t.getName())) {
+                Binary date = in.getBinary(field, rep);
+                if (date != null && date.length() > 0) {
+                  String stringDate = date.toStringUsingUTF8();
+                  try {
+                    IsoDateInterval interval = IsoDateInterval.fromString(stringDate);
+                    LocalDateTime earliestLDT = TemporalAccessorUtils.toEarliestLocalDateTime(interval.getFrom(), true);
+                    out.add(field, earliestLDT.toInstant(ZoneOffset.UTC).toEpochMilli());
+                  } catch (ParseException e) {
+                    throw new RuntimeException("Problem understanding an eventdate "+stringDate, e);
+                  }
+                }
+              } else {
+                out.add(field, in.getBinary(field, rep));
+              }
               break;
             case DOUBLE:
               out.add(field, in.getDouble(field, rep));

@@ -15,13 +15,19 @@ import org.apache.parquet.hadoop.metadata.ParquetMetadata;
 import org.apache.parquet.io.ColumnIOFactory;
 import org.apache.parquet.io.MessageColumnIO;
 import org.apache.parquet.io.RecordReader;
+import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.schema.GroupType;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.Type;
+import org.gbif.api.util.IsoDateInterval;
+import org.gbif.common.parsers.date.TemporalAccessorUtils;
 import org.junit.Test;
 
 import java.io.File;
+import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 import static org.apache.parquet.hadoop.ParquetOutputFormat.WRITE_SUPPORT_CLASS;
 import static org.apache.parquet.hadoop.example.GroupWriteSupport.PARQUET_EXAMPLE_SCHEMA;
@@ -30,8 +36,8 @@ import static org.gbif.hadoop.parquet.ParquetCloudUploadConverter.toInstant;
 public class ParquetUpgraderTest {
 
   final int recordLimit = Integer.MAX_VALUE;
-  final String INPUT_FILE = "src/test/resources/input-sample-before-eventdate-change.parquet";
-  final String OUTPUT_FILE = "target/before-eventdate-change-updated";
+  final String INPUT_FILE = "src/test/resources/input-sample-after-eventdate-change.parquet";
+  final String OUTPUT_FILE = "target/after-eventdate-change-updated";
 
   @Test
   public void parquetUpgradeTest() throws Exception {
@@ -116,7 +122,21 @@ public class ParquetUpgraderTest {
                 break;
               case BINARY:
                 if (in.getBinary(field, rep) != null) {
-                  printIt(t, field, in.getBinary(field, rep).toStringUsingUTF8());
+                  if ("eventdate".equals(t.getName())) {
+                    Binary date = in.getBinary(field, rep);
+                    if (date != null && date.length() > 0) {
+                      String stringDate = date.toStringUsingUTF8();
+                      try {
+                        IsoDateInterval interval = IsoDateInterval.fromString(stringDate);
+                        LocalDateTime earliestLDT = TemporalAccessorUtils.toEarliestLocalDateTime(interval.getFrom(), true);
+                        printIt(t, field, earliestLDT.toInstant(ZoneOffset.UTC).toEpochMilli());
+                      } catch (ParseException e) {
+                        throw new RuntimeException("Problem understanding an eventdate "+stringDate, e);
+                      }
+                    }
+                  } else {
+                    printIt(t, field, in.getBinary(field, rep).toStringUsingUTF8());
+                  }
                 }
                 break;
               case DOUBLE:
