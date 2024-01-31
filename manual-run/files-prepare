@@ -1,9 +1,0 @@
-#!/bin/zsh -e
-
-#for i in `seq -f c5n%g 10` `seq -f c6n%g 9` `seq -f c7n%g 7`; do
-#    rsync -av target/parquet-testing-1.0-SNAPSHOT-jar-with-dependencies.jar mblissett@$i.gbif.org:
-#done
-
-#for i in $(seq -w 000000 001262); do
-#    touch ${i}_0
-#done

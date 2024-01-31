@@ -5,6 +5,7 @@
 .DS_Store
 logs
 pom.xml.releaseBackup
+.*.crc
 
 # Package Files #
 *.jar

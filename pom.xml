@@ -4,91 +4,23 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.example</groupId>
-  <artifactId>parquet-testing</artifactId>
+  <groupId>org.gbif.hadoop.parquet</groupId>
+  <artifactId>parquet-cloud-upload-conversion</artifactId>
   <version>1.0-SNAPSHOT</version>
 
-  <name>parquet-testing</name>
+  <name>Parquet Cloud Upload Conversion</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
 
-<!--    <apache.beam.version>2.33.0</apache.beam.version>-->
     <hadoop.version>2.6.0-cdh5.12.0</hadoop.version>
+
+    <junit.version>4.13.1</junit.version>
   </properties>
 
   <dependencies>
-<!--    <dependency>
-      <groupId>org.apache.parquet</groupId>
-      <artifactId>parquet-avro</artifactId>
-      <version>1.12.2</version>
-    </dependency>-->
-    <!--    <dependency>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-common</artifactId>
-          <scope>provided</scope>
-          <version>3.3.2</version>
-        </dependency>-->
-    <!--    <dependency>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-mapreduce-client-core</artifactId>
-          <version>3.3.2</version>
-        </dependency>-->
- <!--   <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <version>2.13.2</version>
-    </dependency>
--->
-    <!-- Beam -->
-<!--
-    <dependency>
-      <groupId>org.apache.beam</groupId>
-      <artifactId>beam-sdks-java-core</artifactId>
-      <version>${apache.beam.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.beam</groupId>
-      <artifactId>beam-runners-direct-java</artifactId>
-      <version>${apache.beam.version}</version>
-    </dependency>
--->
-<!--
-    <dependency>
-      <groupId>org.apache.beam</groupId>
-      <artifactId>beam-runners-portability-java</artifactId>
-      <version>${apache.beam.version}</version>
-    </dependency>
--->
-<!--
-    <dependency>
-      <groupId>org.apache.beam</groupId>
-      <artifactId>beam-runners-spark</artifactId>
-      <version>${apache.beam.version}</version>
-    </dependency>
--->
-<!--
-    <dependency>
-      <groupId>org.apache.beam</groupId>
-      <artifactId>beam-sdks-java-io-common</artifactId>
-      <version>${apache.beam.version}</version>
-    </dependency>
--->
-<!--    <dependency>-->
-<!--      <groupId>org.apache.beam</groupId>-->
-<!--      <artifactId>beam-sdks-java-io-hadoop-file-system</artifactId>-->
-<!--      <version>${apache.beam.version}</version>-->
-<!--    </dependency>-->
-<!--
-    <dependency>
-      <groupId>org.apache.beam</groupId>
-      <artifactId>beam-sdks-java-io-parquet</artifactId>
-      <version>${apache.beam.version}</version>
-    </dependency>
--->
-
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-common</artifactId>
@@ -118,6 +50,13 @@
       <artifactId>hadoop-mapreduce-client-core</artifactId>
       <version>${hadoop.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -127,7 +66,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.example.ParquetUpgrader</mainClass>
+              <mainClass>org.gbif.hadoop.parquet.ParquetUpgrader</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>
@@ -136,8 +75,8 @@
         </configuration>
         <executions>
           <execution>
-            <id>make-assembly</id> <!-- this is used for inheritance merges -->
-            <phase>package</phase> <!-- bind to the packaging phase -->
+            <id>make-assembly</id>
+            <phase>package</phase>
             <goals>
               <goal>single</goal>
             </goals>
